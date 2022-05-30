@@ -20,14 +20,15 @@ logging.getLogger('WDM').setLevel(logging.NOTSET)
 class PatentscopeSearch:
     """Class to save info about patents from https://patentscope.wipo.int"""
 
-    def __init__(self, headless=True):
+    def __init__(self, headless: bool = True):
         """Initialization method"""
         #  configure browser options
         self.__chrome_options = Options()
         self.__chrome_options.add_argument("--disable-extensions")
         self.__chrome_options.add_argument("--disable-gpu")
-        # disable the visual display of the browser
+        #  disable the visual display of the browser
         self.__chrome_options.headless = headless
+        #  count args
         self.__collected = 0
         self.__total_collected = 0
 
@@ -46,7 +47,8 @@ class PatentscopeSearch:
                 self.__go_to_next_page(browser)
 
     def __search_results(self, browser):
-        #  wait for page load
+        """Method to display results"""
+        #  wait for page to load
         WebDriverWait(browser, 5).until(
             EC.presence_of_element_located((By.XPATH, st.main_page_selector)))
         #  click main search button
@@ -90,7 +92,7 @@ class PatentscopeSearch:
         """Save data to csv-file"""
         with open(filename, 'a', encoding='utf-8') as file:
             writer = csv.writer(file)
-            #  if file is empty - write labels
+            #  TODO if file is empty - write labels (как проверить пустой ли файл)
             if self.__total_collected == 0:
                 writer.writerow(
                     ['title', 'abstract', 'link', 'publication_date', 'patent_class', 'applicant', 'inventor'])
