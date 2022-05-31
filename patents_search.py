@@ -62,15 +62,13 @@ class PatentscopeSearch:
         logger = logging.getLogger(st.LOG_NAME)
         #  set the logger level, messages which are less severe than level will be ignored
         logger.setLevel(st.LOG_LEVEL)
-        #  create handlers
-        #  to file
-        filehandler = logging.FileHandler(full_name, 'a')
-        filehandler.setLevel(st.FH_level)
         # set format of messages
         log_format = logging.Formatter('%(asctime)s: %(levelname)s: %(name)s: %(message)s',
                                        "%Y-%m-%d %H:%M:%S")
+        #  create handlers
+        filehandler = logging.FileHandler(full_name, 'a')
+        filehandler.setLevel(st.FH_level)
         filehandler.setFormatter(log_format)
-        #  to console
         streamhandler = logging.StreamHandler(stream=sys.stdout)
         streamhandler.setLevel(st.SH_level)
         streamhandler.setFormatter(log_format)
@@ -95,8 +93,9 @@ class PatentscopeSearch:
             raise ValueError('Incorrect limit. Possible values are: 10, 50, 100, 200')
         self.__limit = num
 
-    def start(self, limit: int = 200):
+    def start(self, limit: int = 200, filename='patents'):
         """Main method"""
+        file_to_save = f"{filename}_{str(datetime.datetime.now().strftime('%d-%m-%Y'))}.csv"
         start_time = time.time()
         with webdriver.Chrome(service=Service(ChromeDriverManager().install()),
                               options=self.__chrome_options) as browser:
@@ -107,9 +106,9 @@ class PatentscopeSearch:
                 #  collect_data
                 data = self.__collect_data(browser)
                 #  save to file
-                self.__save_collected(data)
-                self._logger.info(f"Successfully saved {self.__total_collected} of {limit} patents."
-                                  f"{round(self.__total_collected/limit, 2) * 100} % completed!"
+                self.__save_collected(data, file_to_save)
+                self._logger.info(f"Successfully saved {self.__total_collected} of {limit} patents.\n"
+                                  f"{round(self.__total_collected/limit, 2) * 100} % completed!\n"
                                   f"Total work time: {str(datetime.timedelta(seconds=round(time.time() - start_time)))}")
                 #  go to next result page
                 self.__current_page += 1
@@ -130,10 +129,10 @@ class PatentscopeSearch:
 
     def __switch_results_display_parameters(self, browser):
         """Configuring the display parameters of the results"""
+        self._logger.debug("Configuring the display parameters of the results...")
         #  switching number of results at page
         select = Select(browser.find_element(By.XPATH, st.per_page_selector))
         select.select_by_visible_text(str(self.limit))
-        self._logger.debug(f"Display {self.limit} patents on the page")
         #  switching the sorting type that results will be displayed
         select = Select(browser.find_element(By.XPATH, st.sort_by_selector))
         select.select_by_visible_text('Даты публикации по убыванию')
@@ -153,6 +152,7 @@ class PatentscopeSearch:
         Returns:
             list with summary information about patents (tuples)
         """
+        self._logger.debug("Collecting summary information about patents...")
         res = []
         #  wait for page loading
         self.__wait_for_results(browser, self.limit)
@@ -233,28 +233,6 @@ class PatentscopeSearch:
 
 
 if __name__ == '__main__':
-    since = time.time()
 
     patent = PatentscopeSearch(True)
-    patent.start(1000)
-    # patent.create_keywords('G01N 1/16')
-
-    # with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as browser:
-    #     browser.get("https://patentscope.wipo.int/search/ru/search.jsf")
-    #     WebDriverWait(browser, 5).until(
-    #         EC.presence_of_element_located((By.XPATH, st.main_page_selector)))
-    #     #  click main search button
-    #     btn = browser.find_element(By.XPATH, st.search_button_selector)
-    #     btn.click()
-    #     time.sleep(5)
-    #     res = browser.find_element(By.CSS_SELECTOR, '.ps-patent-result')
-    #
-    #     print(res.find_element(By.CSS_SELECTOR, st.link).get_attribute('href'))
-    #     print(res.find_element(By.CSS_SELECTOR, st.title).text)
-    #     print(res.find_element(By.CSS_SELECTOR, st.date).text)
-    #     print(res.find_element(By.CSS_SELECTOR, st.inventor).text)
-    #     print(res.find_element(By.CSS_SELECTOR, st.applicant).text)
-    #     print(res.find_element(By.CSS_SELECTOR, st.patent_class).text)
-    #     print(res.find_element(By.CSS_SELECTOR, st.abstracts).text)
-
-    print(time.time() - since)
+    patent.start(2000)
