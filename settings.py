@@ -1,24 +1,37 @@
 
 #  SELECTORS
-#  num results per page selector (Xpath)
-main_page_selector = r'//*[@id="simpleSearchForm:fpSearch"]'
-#  search_button selector (Xpath)
-search_button_selector = r'/html/body/div[2]/div[5]/div/div[2]/form/div/div[1]/div[2]/div/div/div[1]/div[2]/button'
-#  num results per page selector (Xpath)
+#  search_button selector (XPATH)
+search_button_selector = '//*[@id="simpleSearchForm:fpSearch:buttons"]/button'
+
+#  num results per page selector (XPATH)
 per_page_selector = '//*[@id="resultListCommandsForm:perPage:input"]'
-#  how to sort results selector (Xpath)
+#  how to sort results selector (XPATH)
 sort_by_selector = '//*[@id="resultListCommandsForm:sort:input"]'
-#  patents title and abstract selector (Class name)
-patents_selector = 'trans-section'
-#  patent's links selector (CSS_selector)
-links_selector = '.ps-patent-result--title a'
-#  publish dates selector (CSS_selector)
+
+#  elements with patents info (CLASS_NAME)
+patents_selector = 'ps-patent-result'
+#  title selector
+title_selector = '.ps-patent-result--first-row .trans-section'
+#  abstracts selector
+abstract_selector = '.ps-patent-result--second-row .trans-section'
+#  patent's links selector (CSS_SELECTOR)
+links_selector = '.ps-patent-result--first-row a'
+#  publish dates selector (CSS_SELECTOR)
 dates_selector = '.ps-patent-result--title--ctr-pubdate span:nth-child(3)'
-#  patent's class selector (CSS_selector)
-class_selector = '.ps-patent-result--ipc span:nth-child(1) span a'
-#  patent's applicant selector (Class_name)
-applicants_selector = 'ps-patent-result--applicant'
-#  patent's inventors selector (Class_name)
-inventors_selector = 'ps-patent-result--inventor'
+#  patent's class selector (CSS_SELECTOR)
+class_selector = '.ps-patent-result--second-row a'
+#  patent's applicant selector (CLASS_NAME)
+applicants_selector = '.ps-patent-result--second-row a'
+#  patent's inventors selector (CLASS_NAME)
+inventors_selector = '.ps-patent-result--inventor'
+#  next_button selector (CSS_SELECTOR)
+next_button_selector = '.js-paginator-next'
 
 
+title = '.ps-patent-result--first-row .trans-section'
+link = '.ps-patent-result--first-row a'
+patent_class = '.ps-patent-result--second-row a'
+applicant = '.ps-patent-result--applicant'
+inventor = '.ps-patent-result--inventor'
+date = '.ps-patent-result--title--ctr-pubdate span:nth-child(3)'
+abstracts = '.ps-patent-result--second-row .trans-section'
