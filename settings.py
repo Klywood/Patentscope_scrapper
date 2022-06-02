@@ -1,3 +1,4 @@
+import json
 
 #  LOGGER PARAMS
 LOG_FOLDER = 'logs'
@@ -33,3 +34,7 @@ applicants_selector = '.ps-patent-result--applicant'
 inventors_selector = '.ps-patent-result--inventor'
 #  next_button selector (CSS_SELECTOR)
 next_button_selector = '.js-paginator-next'
+
+#  load International patent classification as dict
+with open('IPC/IPC.json', 'r', encoding='utf-8') as ipc:
+    IPC = json.load(ipc)
