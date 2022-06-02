@@ -109,7 +109,10 @@ class PatentscopeSearch:
                 self.__save_collected(data, file_to_save)
                 self._logger.info(f"Successfully saved {self.__total_collected} of {limit} patents.\n"
                                   f"{round(self.__total_collected/limit, 2) * 100} % completed!\n"
-                                  f"Total work time: {str(datetime.timedelta(seconds=round(time.time() - start_time)))}")
+                                  f"Total work time: "
+                                  f"{str(datetime.timedelta(seconds=round(time.time() - start_time)))}")
+                if self.__total_collected >= limit:
+                    break
                 #  go to next result page
                 self.__current_page += 1
                 self.__go_to_next_page(browser)
@@ -154,7 +157,6 @@ class PatentscopeSearch:
         """
         self._logger.debug("Collecting summary information about patents...")
         res = []
-        #  wait for page loading
         self.__wait_for_results(browser, self.limit)
 
         #  collect main elements with patent's info
@@ -202,12 +204,24 @@ class PatentscopeSearch:
 
     @staticmethod
     def create_keywords(patent_class):
-        """Converting patent_class to keywords"""
-        #  TODO обработка международной патентной классификации в ключевые слова
+        """Converting patent_class to keywords
+
+        Example:
+            Classificator: A01B 1/00
+                | A - Chapter;
+                | 01 - Class;
+                | B - Subclass;
+                | 1/00 - Groups and subgroups;
+        """
         if not patent_class:
             return None
-        a, b = patent_class.split()
-        return [a, b]
+        chapter_kw = set(st.IPC.get(patent_class[0], '0'))
+        class_kw = set(st.IPC.get(patent_class[:3], '0'))
+        subclass_kw = set(st.IPC.get(patent_class[:4], '0'))
+        res = chapter_kw | class_kw | subclass_kw
+        if '0' in res:
+            res.discard('0')
+        return list(res)
 
     def __save_collected(self, data, filename='patents.csv'):
         """Save data to csv-file"""
@@ -234,5 +248,5 @@ class PatentscopeSearch:
 
 if __name__ == '__main__':
 
-    patent = PatentscopeSearch(True)
-    patent.start(2000)
+    patent = PatentscopeSearch(True, results_on_page=200)
+    patent.start(5000)
