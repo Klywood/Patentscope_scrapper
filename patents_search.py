@@ -165,7 +165,6 @@ class PatentscopeSearch:
 
         #  get summary information about patents in multithreading mode
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
-            #  creating list of futures
             future_to_url = [executor.submit(self.__get_all_data_from_element, element) for element in self.__patents]
             for future in concurrent.futures.as_completed(future_to_url):
                 res.append(future.result())
@@ -237,10 +236,8 @@ class PatentscopeSearch:
 
     def __go_to_next_page(self, browser):
         """Switch page to upload more patents"""
-        #  find and click 'next page' button
         next_button = browser.find_element(By.CSS_SELECTOR, st.next_button_selector)
         next_button.click()
-        #  wait until page load
         WebDriverWait(browser, 20).until(EC.text_to_be_present_in_element((By.ID, r'resultListCommandsForm:pageNumber'),
                                                                           str(self.__current_page)))
         self._logger.debug(f"Switched to {self.__current_page} page")
@@ -249,4 +246,4 @@ class PatentscopeSearch:
 if __name__ == '__main__':
 
     patent = PatentscopeSearch(True, results_on_page=200)
-    patent.start(5000)
+    patent.start(50000)
