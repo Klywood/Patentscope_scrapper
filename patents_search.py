@@ -167,6 +167,7 @@ class PatentscopeSearch:
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
             future_to_url = [executor.submit(self.__get_all_data_from_element, element) for element in self.__patents]
             for future in concurrent.futures.as_completed(future_to_url):
+                #  TODO добавить проверку хэша кортежа - иначе не добавлять
                 res.append(future.result())
 
         self.__collected = len(res)
