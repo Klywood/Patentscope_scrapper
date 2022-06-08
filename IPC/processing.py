@@ -3,8 +3,8 @@ import os
 
 """
 You can copy last IPC classification from:
-https://www.wipo.int/classifications/ipc/en/ITsupport/Version20220101/index.html
-
+https://www.wipo.int/classifications/ipc/en/ITsupport/Version20220101/index.html in
+'List of IPC scheme titles in authentic languages (e.g. for upload into a spreadsheet)'
 """
 
 
