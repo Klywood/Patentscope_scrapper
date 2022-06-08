@@ -25,7 +25,7 @@ logging.getLogger('WDM').setLevel(logging.NOTSET)
 class PatentscopeSearch:
     """Class to save info about patents from https://patentscope.wipo.int"""
 
-    def __init__(self, headless: bool = True, page: int = 1, results_on_page=200):
+    def __init__(self, headless: bool = True, results_on_page: int = 200):
         """Initialization method"""
         #  configure browser options
         self.__chrome_options = Options()
@@ -36,7 +36,7 @@ class PatentscopeSearch:
         #  attribute to store elements with info about patents
         self.__patents = None
         #  start_page number
-        self.__current_page = page
+        self.__current_page = 1
         #  results displayed at page
         self.__limit = results_on_page
         #  count args
@@ -94,7 +94,7 @@ class PatentscopeSearch:
             raise ValueError('Incorrect limit. Possible values are: 10, 50, 100, 200')
         self.__limit = num
 
-    def start(self, limit: int = 200, filename='patents'):
+    def start(self, limit: int = 200, filename: str = 'patents'):
         """Main method
 
         Parameters:
@@ -147,7 +147,7 @@ class PatentscopeSearch:
         select = Select(browser.find_element(By.XPATH, st.sort_by_selector))
         select.select_by_visible_text('Даты публикации по убыванию')
 
-    def __wait_for_results(self, browser, results_on_page=5):
+    def __wait_for_results(self, browser, results_on_page: int = 5):
         """Waiting for the results to load"""
         #  wait until page load
         WebDriverWait(browser, 20).until(
@@ -195,7 +195,7 @@ class PatentscopeSearch:
         return res
 
     @staticmethod
-    def __get_content_from_element(element, selector, content_type='text'):
+    def __get_content_from_element(element, selector, content_type:str = 'text'):
         """Find content from element by CSS_SELECTOR"""
         res = element.find_elements(By.CSS_SELECTOR, selector)
         #  if no element found
@@ -209,7 +209,7 @@ class PatentscopeSearch:
             raise ValueError('Incorrect content_type. Possible values are: "text", "href"')
 
     @staticmethod
-    def create_keywords(patent_class):
+    def create_keywords(patent_class: str):
         """Converting patent_class to keywords
 
         Example:
@@ -229,7 +229,7 @@ class PatentscopeSearch:
             res.discard('0')
         return list(res)
 
-    def __save_collected(self, data, filename='patents.csv'):
+    def __save_collected(self, data, filename: str):
         """Save data to csv-file"""
         self._logger.debug('Saving collected data...')
         with open(filename, 'a', encoding='utf-8') as file:
@@ -247,7 +247,7 @@ class PatentscopeSearch:
                     saved_count += 1
         self.__total_collected += saved_count
 
-    def __already_saved(self, record):
+    def __already_saved(self, record: tuple):
         """Checks if info about patent already saved"""
         hashed_info = hashlib.md5(str(record).encode()).hexdigest()
         if os.path.exists(st.hash_file):
@@ -259,7 +259,7 @@ class PatentscopeSearch:
         return False
 
     @classmethod
-    def __save_patent_hash(cls, hashed_record, filename):
+    def __save_patent_hash(cls, hashed_record: str, filename: str):
         """Save hashed patent info to file"""
 
         with open(filename, "a", encoding='utf-8') as w_file:
