@@ -1,6 +1,8 @@
 import json
 
 #  LOGGER PARAMS
+import os
+
 LOG_FOLDER = 'logs'
 LOG_NAME = 'Patents'
 LOG_LEVEL = 'DEBUG'
@@ -38,3 +40,10 @@ next_button_selector = '.js-paginator-next'
 #  load International patent classification as dict
 with open('IPC/IPC.json', 'r', encoding='utf-8') as ipc:
     IPC = json.load(ipc)
+
+#  folder to save data
+data_folder = 'collected_data'
+os.makedirs(data_folder, exist_ok=True)
+#  path to file with hashed records
+hash_file = os.path.join(data_folder, 'saved_patents_hash.txt')
+
