@@ -1,3 +1,5 @@
 .idea
 /logs/
 /collected_data/
+__pycache__
+
