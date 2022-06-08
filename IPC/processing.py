@@ -14,15 +14,14 @@ for fl in os.listdir('classes'):
     with open(fl, 'r', encoding='utf8') as file:
         data = file.readlines()
         for i in data:
-            #  разделяем имя класса и определение
+            #  split code and keywords
             cls, key = i.strip().split('\t')
             if len(cls) <= 4:
-                #  ключи - ПРОПИСНЫЕ слова, разделенные символом ';'
+                #  keywords are uppercase words separated by the symbol ';'
                 key = [i for i in key.split('; ') if i == i.upper()]
                 if len(key) > 0:
                     res[cls] = key
 
-print(res)
-print(len(res))
+
 with open('IPC.json', 'w', encoding='utf-8') as ipc:
     json.dump(res, ipc, indent=2)
