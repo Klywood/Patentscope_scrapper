@@ -5,6 +5,7 @@ import time
 import concurrent.futures
 import csv
 import datetime
+import hashlib
 from typing import Union
 
 import settings as st
@@ -96,6 +97,7 @@ class PatentscopeSearch:
     def start(self, limit: int = 200, filename='patents'):
         """Main method"""
         file_to_save = f"{filename}_{str(datetime.datetime.now().strftime('%d-%m-%Y'))}.csv"
+        save_path = os.path.join(st.data_folder, file_to_save)
         start_time = time.time()
         with webdriver.Chrome(service=Service(ChromeDriverManager().install()),
                               options=self.__chrome_options) as browser:
@@ -106,9 +108,9 @@ class PatentscopeSearch:
                 #  collect_data
                 data = self.__collect_data(browser)
                 #  save to file
-                self.__save_collected(data, file_to_save)
+                self.__save_collected(data, save_path)
                 self._logger.info(f"Successfully saved {self.__total_collected} of {limit} patents.\n"
-                                  f"{round(self.__total_collected/limit, 2) * 100} % completed!\n"
+                                  f"{round(self.__total_collected / limit, 2) * 100} % completed!\n"
                                   f"Total work time: "
                                   f"{str(datetime.timedelta(seconds=round(time.time() - start_time)))}")
                 if self.__total_collected >= limit:
@@ -132,7 +134,7 @@ class PatentscopeSearch:
 
     def __switch_results_display_parameters(self, browser):
         """Configuring the display parameters of the results"""
-        self._logger.debug("Configuring the display parameters of the results...")
+        self._logger.debug("Configuring the results display parameters...")
         #  switching number of results at page
         select = Select(browser.find_element(By.XPATH, st.per_page_selector))
         select.select_by_visible_text(str(self.limit))
@@ -161,13 +163,12 @@ class PatentscopeSearch:
 
         #  collect main elements with patent's info
         self.__patents = browser.find_elements(By.CSS_SELECTOR, st.patents_selector)
-        self._logger.debug(f"{len(self.__patents)} patents found")
+        self._logger.debug(f"{len(self.__patents)} patents found. Creating summary info for patents...")
 
         #  get summary information about patents in multithreading mode
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
             future_to_url = [executor.submit(self.__get_all_data_from_element, element) for element in self.__patents]
             for future in concurrent.futures.as_completed(future_to_url):
-                #  TODO добавить проверку хэша кортежа - иначе не добавлять
                 res.append(future.result())
 
         self.__collected = len(res)
@@ -225,6 +226,7 @@ class PatentscopeSearch:
 
     def __save_collected(self, data, filename='patents.csv'):
         """Save data to csv-file"""
+        self._logger.debug('Saving collected data...')
         with open(filename, 'a', encoding='utf-8') as file:
             writer = csv.writer(file)
             #  if file is empty - write labels
@@ -232,8 +234,31 @@ class PatentscopeSearch:
                 writer.writerow(
                     ['type', 'language', 'url', 'title', 'creators',
                      'source/applicant', 'publication_date', 'abstract', 'keywords'])
-            writer.writerows(data)
-        self.__total_collected += self.__collected
+            saved_count = 0
+            for record in data:
+                #  check if patent's url already saved
+                if not self.__already_saved(record[3:6]):
+                    writer.writerow(record)
+                    saved_count += 1
+        self.__total_collected += saved_count
+
+    def __already_saved(self, record):
+        """Checks if info about patent already saved"""
+        hashed_info = hashlib.md5(str(record).encode()).hexdigest()
+        if os.path.exists(st.hash_file):
+            with open(st.hash_file, "r", encoding='utf-8') as r_file:
+                for line in r_file:
+                    if hashed_info == line.rstrip():
+                        return True
+        self.__save_patent_hash(hashed_info, st.hash_file)
+        return False
+
+    @classmethod
+    def __save_patent_hash(cls, hashed_record, filename):
+        """Save hashed patent info to file"""
+
+        with open(filename, "a", encoding='utf-8') as w_file:
+            print(hashed_record, file=w_file)
 
     def __go_to_next_page(self, browser):
         """Switch page to upload more patents"""
@@ -245,6 +270,5 @@ class PatentscopeSearch:
 
 
 if __name__ == '__main__':
-
     patent = PatentscopeSearch(True, results_on_page=200)
-    patent.start(50000)
+    patent.start(200)
