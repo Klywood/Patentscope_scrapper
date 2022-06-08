@@ -95,7 +95,12 @@ class PatentscopeSearch:
         self.__limit = num
 
     def start(self, limit: int = 200, filename='patents'):
-        """Main method"""
+        """Main method
+
+        Parameters:
+            limit: limit on patent to be saved
+            filename: name of file to save info
+        """
         file_to_save = f"{filename}_{str(datetime.datetime.now().strftime('%d-%m-%Y'))}.csv"
         save_path = os.path.join(st.data_folder, file_to_save)
         start_time = time.time()
