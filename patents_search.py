@@ -115,7 +115,7 @@ class PatentscopeSearch:
                 #  save to file
                 self.__save_collected(data, save_path)
                 self._logger.info(f"Successfully saved {self.__total_collected} of {limit} patents.\n"
-                                  f"{round(self.__total_collected / limit, 2) * 100} % completed!\n"
+                                  f"{round(self.__total_collected / limit * 100, 3)} % completed!\n"
                                   f"Total work time: "
                                   f"{str(datetime.timedelta(seconds=round(time.time() - start_time)))}")
                 if self.__total_collected >= limit:
@@ -128,7 +128,7 @@ class PatentscopeSearch:
     def __search_results(self, browser):
         """Method to display results"""
         #  wait for page to load
-        WebDriverWait(browser, 5).until(
+        WebDriverWait(browser, 20).until(
             EC.element_to_be_clickable((By.XPATH, st.search_button_selector)))
         #  click main search button
         btn = browser.find_element(By.XPATH, st.search_button_selector)
@@ -162,13 +162,13 @@ class PatentscopeSearch:
         Returns:
             list with summary information about patents (tuples)
         """
-        self._logger.debug("Collecting summary information about patents...")
+        self._logger.debug("Collecting information about patents...")
         res = []
         self.__wait_for_results(browser, self.limit)
 
         #  collect main elements with patent's info
         self.__patents = browser.find_elements(By.CSS_SELECTOR, st.patents_selector)
-        self._logger.debug(f"{len(self.__patents)} patents found. Creating summary info for patents...")
+        self._logger.debug(f"{len(self.__patents)} patents found. Creating summary info to save...")
 
         #  get summary information about patents in multithreading mode
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
@@ -177,7 +177,7 @@ class PatentscopeSearch:
                 res.append(future.result())
 
         self.__collected = len(res)
-        self._logger.debug(f"Summary information about {self.__collected} patents successfully collected")
+        self._logger.debug(f"Summary information about {self.__collected} patents successfully created")
         return res
 
     def __get_all_data_from_element(self, element):
@@ -195,7 +195,7 @@ class PatentscopeSearch:
         return res
 
     @staticmethod
-    def __get_content_from_element(element, selector, content_type:str = 'text'):
+    def __get_content_from_element(element, selector, content_type: str = 'text'):
         """Find content from element by CSS_SELECTOR"""
         res = element.find_elements(By.CSS_SELECTOR, selector)
         #  if no element found
@@ -276,4 +276,4 @@ class PatentscopeSearch:
 
 if __name__ == '__main__':
     patent = PatentscopeSearch(True, results_on_page=200)
-    patent.start(200)
+    patent.start(200000)
