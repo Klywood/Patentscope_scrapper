@@ -1,8 +1,7 @@
 import json
-
-#  LOGGER PARAMS
 import os
 
+#  LOGGER PARAMS
 LOG_FOLDER = 'logs'
 LOG_NAME = 'Patents'
 LOG_LEVEL = 'DEBUG'
@@ -44,6 +43,6 @@ with open('IPC/IPC.json', 'r', encoding='utf-8') as ipc:
 #  folder to save data
 data_folder = 'collected_data'
 os.makedirs(data_folder, exist_ok=True)
-#  path to file with hashed records
+#  path to file with hash of records
 hash_file = os.path.join(data_folder, 'saved_patents_hash.txt')
 

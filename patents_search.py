@@ -210,7 +210,7 @@ class PatentscopeSearch:
 
     @staticmethod
     def create_keywords(patent_class: str):
-        """Converting patent_class to keywords
+        """Converting patent's classificator to keywords
 
         Example:
             Classificator: A01B 1/00
